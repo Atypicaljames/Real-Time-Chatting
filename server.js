@@ -608,8 +608,8 @@ async function startServer() {
 
   await initDefaultGroups();
 
-  server.listen(PORT, '127.0.0.1', () => {
-    console.log(`Realtime chat server is running on http://127.0.0.1:${PORT}`);
+  server.listen(PORT, () => {
+    console.log(`Realtime chat server is running on :${PORT}`);
     if (!dbReady) {
       console.log('WARNING: using in-memory storage because MongoDB is unavailable. Data will not persist across restarts.');
     }
