@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RGC Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell hidden" id="appShell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">RGC</div>
+          <div>
+            <h1>RGC</h1>
+          </div>
+        </div>
+
+        <div class="sidebar-panel">
+          <div class="sidebar-header">
+            <div>
+              <p class="headline">Workspace</p>
+              <strong id="userNameDisplay">Welcome</strong>
+            </div>
+            <button class="logout-button" id="logoutButton">Logout</button>
+          </div>
+
+          <section class="user-section">
+            <div class="section-header">
+              <p class="headline">Users</p>
+              <span id="userCount" class="user-count">0</span>
+            </div>
+            <div class="user-list" id="userList"></div>
+          </section>
+
+          <section class="group-section">
+            <div class="section-header">
+              <p class="headline">Groups</p>
+            </div>
+            <div class="group-list" id="groupList"></div>
+          </section>
+        </div>
+      </aside>
+
+      <main class="chat-panel">
+        <header class="chat-header">
+          <div>
+            <p class="eyebrow" id="groupDescriptionText">Select a group to begin</p>
+            <h2 id="groupTitle">No group selected</h2>
+          </div>
+          <div class="header-meta">
+            <span class="status-dot"></span>
+            <span>Live</span>
+          </div>
+        </header>
+
+        <section class="messages" id="messages"></section>
+        <div class="typing-indicator" id="typingIndicator"></div>
+
+        <form class="composer" id="chatForm">
+          <div class="composer-meta">
+            <button type="button" class="secondary-button" id="attachButton">Attach file</button>
+            <button type="button" class="secondary-button" id="recordButton">Record voice note</button>
+            <span class="file-name" id="selectedFileName">No attachment selected</span>
+          </div>
+
+          <input id="fileInput" type="file" hidden />
+          <div class="composer-input">
+            <textarea id="messageInput" rows="2" placeholder="Type a message" maxlength="1000"></textarea>
+            <button type="submit" class="send-button" aria-label="Send message">
+              <span class="send-icon">✈</span>
+            </button>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <div class="auth-shell" id="authShell">
+      <div class="auth-panel">
+        <div class="auth-brand">
+          <div class="brand-mark">RGC</div>
+          <div>
+            <h1>RGC Chat</h1>
+            <p>Secure login and shared group conversations.</p>
+          </div>
+        </div>
+
+        <div class="auth-tabs">
+          <button type="button" class="tab-button active" data-tab="login">Login</button>
+          <button type="button" class="tab-button" data-tab="register">Register</button>
+        </div>
+
+        <div class="tab-content active" id="loginTab">
+          <form id="loginForm">
+            <label>Username</label>
+            <input id="loginUsername" required />
+            <label>Password</label>
+            <input id="loginPassword" type="password" required />
+            <button type="submit" class="primary-button">Login</button>
+          </form>
+        </div>
+ 
+        <div class="tab-content" id="registerTab">
+          <form id="registerForm">
+            <label>Username</label>
+            <input id="registerUsername" required />
+            <label>Display name</label>
+            <input id="registerDisplayName" required />
+            <label>Password</label>
+            <input id="registerPassword" type="password" required />
+            <button type="submit" class="primary-button">Register</button>
+          </form>
+        </div>
+
+        <div class="auth-note" id="authError"></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+    <script src="client.js"></script>
+  </body>
+</html>
