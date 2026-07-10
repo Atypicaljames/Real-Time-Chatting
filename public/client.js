@@ -32,6 +32,7 @@ let recordedChunks = [];
 let typingTimeout = null;
 let groups = [];
 let users = [];
+let groupRefreshTimer = null;
 const defaultGroupPrompt = 'Select a group to begin';
 function escapeHtml(input) {
   return String(input).replace(/[&<>\"]/g, (match) => {
@@ -142,7 +143,24 @@ function setActiveTab(tabName) {
   });
 }
 
+function scheduleGroupsRefresh() {
+  if (groupRefreshTimer) {
+    clearTimeout(groupRefreshTimer);
+  }
+  groupRefreshTimer = setTimeout(() => {
+    groupRefreshTimer = null;
+    loadGroups();
+  }, 220);
+}
+
+function scrollMessagesToBottom() {
+  requestAnimationFrame(() => {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  });
+}
+
 function updateUserList() {
+  const fragment = document.createDocumentFragment();
   userList.innerHTML = '';
   userCount.textContent = users.length;
 
@@ -153,11 +171,14 @@ function updateUserList() {
       <strong>${escapeHtml(user.displayName)}</strong>
       <span>${escapeHtml(user.username)}</span>
     `;
-    userList.appendChild(userCard);
+    fragment.appendChild(userCard);
   });
+
+  userList.appendChild(fragment);
 }
 
 function updateGroupList() {
+  const fragment = document.createDocumentFragment();
   groupList.innerHTML = '';
   groups.forEach((group) => {
     const card = document.createElement('button');
@@ -170,8 +191,10 @@ function updateGroupList() {
       <p class="group-description">${escapeHtml(group.description || 'Open group chat')}</p>
     `;
     card.addEventListener('click', () => selectGroup(group));
-    groupList.appendChild(card);
+    fragment.appendChild(card);
   });
+
+  groupList.appendChild(fragment);
 }
 
 let socketHandlersBound = false;
@@ -210,7 +233,7 @@ function connectSocket() {
           textEl.style.display = message.text ? '' : 'none';
         }
       }
-      loadGroups();
+      scheduleGroupsRefresh();
     });
 
     socket.on('message deleted', ({ messageId, groupId }) => {
@@ -219,15 +242,15 @@ function connectSocket() {
       }
       const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
       messageEl?.remove();
-      loadGroups();
+      scheduleGroupsRefresh();
     });
 
     socket.on('new message', (message) => {
       if (message.groupId !== activeGroupId) {
         return;
       }
-      appendMessage(message, message.userName === currentUser.displayName);
-      loadGroups();
+      appendMessage(message, Boolean(currentUser && message.userName === currentUser.displayName));
+      scheduleGroupsRefresh();
     });
 
     socket.on('typing', ({ name, groupId }) => {
@@ -382,7 +405,7 @@ async function editMessageText(messageEl, message) {
       textEditor.remove();
       controls.remove();
       textEl.style.display = response.message.text ? '' : 'none';
-      loadGroups();
+      scheduleGroupsRefresh();
     } catch (error) {
       console.error('Unable to edit message', error);
       alert(error.message || 'Unable to update message.');
@@ -404,7 +427,7 @@ async function deleteMessage(messageEl, message) {
   try {
     await api(`/api/messages/${message._id}`, { method: 'DELETE' });
     messageEl.remove();
-    loadGroups();
+    scheduleGroupsRefresh();
   } catch (error) {
     console.error('Unable to delete message', error);
     alert(error.message || 'Unable to delete message.');
@@ -450,17 +473,19 @@ function toggleMessageActions(messageEl, message, isOwnMessage) {
 }
 
 function renderMessages(messages) {
-  messagesEl.innerHTML = '';
+  const fragment = document.createDocumentFragment();
   messages.forEach((message) => {
-    appendMessage(message, message.userName === currentUser.displayName, false);
+    fragment.appendChild(createMessageElement(message, Boolean(currentUser && message.userName === currentUser.displayName)));
   });
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+  messagesEl.innerHTML = '';
+  messagesEl.appendChild(fragment);
+  scrollMessagesToBottom();
 }
 
 function appendMessage(message, isOwnMessage = false, markRead = true) {
   const messageEl = createMessageElement(message, isOwnMessage);
   messagesEl.appendChild(messageEl);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+  scrollMessagesToBottom();
   if (markRead) {
     markMessageRead(message);
   }
@@ -476,7 +501,7 @@ function setTypingIndicator(message) {
 }
 
 async function markMessageRead(message) {
-  if (!message._id || !activeGroupId || message.userName === currentUser.displayName) {
+  if (!message._id || !activeGroupId || !currentUser || message.userName === currentUser.displayName) {
     return;
   }
   socket.emit('message read', { messageId: message._id, groupId: activeGroupId });
