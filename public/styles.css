@@ -601,38 +601,46 @@ textarea:focus {
   .sidebar {
     padding: 18px;
   }
-
-  .messages {
-    max-height: min(56vh, 560px);
-  }
 }
 
-@media (max-width: 768px) {
-  .sidebar,
-  .chat-panel,
-  .auth-panel {
-    border-radius: 20px;
-    padding: 16px;
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 12px;
   }
 
-  .chat-header {
-    align-items: flex-start;
+  .sidebar,
+  .chat-panel {
+    min-width: 0;
+  }
+
+  .sidebar-panel {
+    gap: 14px;
+  }
+
+  .group-list {
+    max-height: none;
+  }
+
+  .user-list {
+    max-height: none;
   }
 
   .messages {
-    min-height: 260px;
     max-height: none;
+    min-height: 320px;
   }
 }
 
 @media (max-width: 640px) {
   body {
-    background-attachment: fixed;
+    background-attachment: scroll;
   }
 
   .app-shell,
   .auth-shell {
-    padding: 8px;
+    padding: 0;
     width: 100%;
     max-width: 100%;
   }
@@ -640,10 +648,31 @@ textarea:focus {
   .sidebar,
   .chat-panel,
   .auth-panel {
-    border-radius: 16px;
-    padding: 12px;
+    border-radius: 0;
+    padding: 14px;
     width: 100%;
     max-width: 100%;
+  }
+
+  .sidebar-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .logout-button {
+    width: 100%;
+  }
+
+  .chat-panel {
+    min-height: calc(100dvh - 8px);
+    padding-bottom: 14px;
+  }
+
+  .chat-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 
   .auth-tabs {
@@ -655,17 +684,21 @@ textarea:focus {
     gap: 8px;
   }
 
+  .composer-meta {
+    grid-template-columns: 1fr;
+  }
+
   .composer-input textarea {
-    min-height: 88px;
+    min-height: 72px;
     padding-right: 16px;
-    padding-bottom: 70px;
+    padding-bottom: 54px;
   }
 
   .send-button {
     right: 8px;
     bottom: 8px;
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
   }
 
   .group-card,
