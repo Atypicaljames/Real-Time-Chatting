@@ -81,6 +81,7 @@ let memoryDb = {
   groups: [],
   messages: [],
 };
+const activeSessions = new Map();
 
 function createMemoryId() {
   return new mongoose.Types.ObjectId();
@@ -128,8 +129,11 @@ function buildUserPayload(user) {
 
 async function broadcastUserList() {
   try {
-    const users = await findAllUsers();
-    io.emit('users updated', users.map(buildUserPayload));
+    const activeUsers = Array.from(activeSessions.values()).map((session) => ({
+      username: session.username,
+      displayName: session.displayName,
+    }));
+    io.emit('users updated', activeUsers);
   } catch (error) {
     console.error('Broadcast user list failed:', error);
   }
@@ -269,6 +273,7 @@ app.post('/api/register', async (req, res) => {
     req.session.userId = String(user._id);
     req.session.username = user.username;
     req.session.displayName = user.displayName;
+    activeSessions.set(String(user._id), { username: user.username, displayName: user.displayName });
     res.json({ user: { username: user.username, displayName: user.displayName } });
     broadcastUserList();
   } catch (error) {
@@ -298,6 +303,7 @@ app.post('/api/login', async (req, res) => {
     req.session.userId = String(user._id);
     req.session.username = user.username;
     req.session.displayName = user.displayName;
+    activeSessions.set(String(user._id), { username: user.username, displayName: user.displayName });
     res.json({ user: { username: user.username, displayName: user.displayName } });
     broadcastUserList();
   } catch (error) {
@@ -307,11 +313,13 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/logout', requireAuth, (req, res) => {
+  activeSessions.delete(String(req.session.userId));
   req.session.destroy((err) => {
     if (err) {
       console.error('Logout failed:', err);
       return res.status(500).json({ error: 'Logout failed.' });
     }
+    broadcastUserList();
     res.json({ success: true });
   });
 });
@@ -487,6 +495,13 @@ io.on('connection', (socket) => {
   const session = getSession(socket);
   console.log('Client connected:', socket.id, session.username);
 
+  if (session && session.userId) {
+    activeSessions.set(String(session.userId), {
+      username: session.username,
+      displayName: session.displayName,
+    });
+  }
+
   socket.join('global');
   io.to('global').emit('user count', io.sockets.sockets.size);
   broadcastUserList();
@@ -591,6 +606,10 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
+    if (session && session.userId) {
+      activeSessions.delete(String(session.userId));
+      broadcastUserList();
+    }
     io.to('global').emit('user count', io.sockets.sockets.size);
   });
 });

@@ -95,7 +95,35 @@ async function api(path, options = {}) {
   return data;
 }
 
+function resetAppState() {
+  currentUser = null;
+  activeGroupId = null;
+  activeGroup = null;
+  pendingAttachment = null;
+  groups = [];
+  users = [];
+  messagesEl.innerHTML = '';
+  groupTitle.textContent = 'No group selected';
+  groupDescriptionText.textContent = 'Select a group to begin';
+  userNameDisplay.textContent = 'Welcome';
+  userList.innerHTML = '';
+  groupList.innerHTML = '';
+  userCount.textContent = '0';
+  messageInput.value = '';
+  selectedFileName.textContent = 'No attachment selected';
+  fileInput.value = '';
+  setTypingIndicator('');
+  if (socket.connected) {
+    socket.disconnect();
+  }
+  loginForm.reset();
+  registerForm.reset();
+  setError('');
+  setActiveTab('login');
+}
+
 function showAuthShell() {
+  resetAppState();
   authShell.classList.remove('hidden');
   appShell.classList.add('hidden');
 }
@@ -563,15 +591,10 @@ authTabs.forEach((button) => {
 logoutButton.addEventListener('click', async () => {
   try {
     await api('/api/logout', { method: 'POST' });
-    if (socket.connected) {
-      socket.disconnect();
-    }
-    currentUser = null;
-    activeGroupId = null;
-    groups = [];
-    showAuthShell();
   } catch (error) {
     console.error(error);
+  } finally {
+    showAuthShell();
   }
 });
 
