@@ -249,7 +249,7 @@ button {
   grid-template-rows: auto 1fr auto;
   gap: 12px;
   padding: 14px;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100dvh - 56px);
 }
 
 .chat-header {
@@ -397,6 +397,12 @@ button {
 .composer {
   display: grid;
   gap: 10px;
+  position: sticky;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.88);
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.08);
 }
 
 .composer-meta {
@@ -663,17 +669,22 @@ textarea:focus {
     flex-direction: column;
   }
 
+  .composer {
+    padding: 8px;
+    gap: 8px;
+  }
+
   .composer-input textarea {
-    min-height: 96px;
+    min-height: 92px;
     padding-right: 18px;
-    padding-bottom: 78px;
+    padding-bottom: 74px;
   }
 
   .send-button {
     right: 10px;
     bottom: 10px;
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
   }
 
   .group-card,
@@ -689,5 +700,9 @@ textarea:focus {
   .message-actions button,
   .message-edit-controls button {
     width: 100%;
+  }
+
+  .sidebar-panel {
+    gap: 16px;
   }
 }
