@@ -397,8 +397,6 @@ button {
 .composer {
   display: grid;
   gap: 10px;
-  position: sticky;
-  bottom: 0;
   background: rgba(15, 23, 42, 0.88);
   padding: 10px;
   border-radius: 20px;
@@ -589,7 +587,6 @@ textarea:focus {
 
 @media (max-width: 1120px) {
   .app-shell {
-    grid-template-columns: 1fr;
     padding: 20px;
     gap: 20px;
   }
@@ -598,12 +595,8 @@ textarea:focus {
     padding: 22px;
   }
 
-  .chat-panel {
-    min-height: auto;
-  }
-
   .messages {
-    max-height: min(54vh, 560px);
+    max-height: min(56vh, 560px);
   }
 }
 
@@ -615,30 +608,7 @@ textarea:focus {
     padding: 20px;
   }
 
-  .sidebar-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .logout-button {
-    width: 100%;
-  }
-
-  .composer-meta {
-    grid-template-columns: 1fr;
-  }
-
-  .message {
-    max-width: 100%;
-  }
-
-  .message strong {
-    flex-direction: column;
-    gap: 4px;
-  }
-
   .chat-header {
-    flex-direction: column;
     align-items: flex-start;
   }
 
@@ -683,8 +653,8 @@ textarea:focus {
   .send-button {
     right: 10px;
     bottom: 10px;
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
   }
 
   .group-card,
@@ -692,17 +662,17 @@ textarea:focus {
     padding: 14px 16px;
   }
 
+  .message {
+    max-width: 100%;
+  }
+
   .message-actions,
   .message-edit-controls {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
 
   .message-actions button,
   .message-edit-controls button {
-    width: 100%;
-  }
-
-  .sidebar-panel {
-    gap: 16px;
+    width: auto;
   }
 }
